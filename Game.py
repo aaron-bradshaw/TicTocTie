@@ -1,4 +1,5 @@
 import os
+import time
 class Game:
     def __init__(self):
         self.generateGame()
@@ -40,7 +41,7 @@ class Game:
             marker = 'O'
         self.boardGrid = self.boardGrid[:gridLocations[location]] + marker + self.boardGrid[gridLocations[location] + 1:]
 
-    def maxComputer(self):
+    def maxComputer(self, alpha, beta):
         maxValue = -100
         maxLoc = None
         winner = self.checkWin()
@@ -55,16 +56,22 @@ class Game:
         for i in range(9):
             if self.boardValues[i] == 0:
                 self.boardValues[i] = self.compValue
-                (min, location) = self.minPlayer()
+                (min, location) = self.minPlayer(alpha, beta)
                  
                 if min > maxValue:
                      maxValue = min
                      maxLoc = i
                 self.boardValues[i] = 0
+
+                if maxValue >= beta:
+                    return(maxValue, maxLoc)
+                
+                if maxValue > alpha:
+                    alpha = maxValue
         return(maxValue, maxLoc)
                 
 
-    def minPlayer(self):
+    def minPlayer(self, alpha, beta):
         minValue = 100
         minLoc = None
         winner = self.checkWin()
@@ -78,12 +85,17 @@ class Game:
         for i in range(9):
             if self.boardValues[i] == 0:
                 self.boardValues[i] = self.playerValue
-                (max, location) = self.maxComputer()
+                (max, location) = self.maxComputer(alpha, beta)
                  
                 if max < minValue:
                      minValue = max
                      minLoc = i
                 self.boardValues[i] = 0
+
+                if minValue <= alpha:
+                    return(minValue, minLoc)
+                if minValue < beta:
+                    beta = minValue
         return(minValue, minLoc)
 
     
@@ -99,7 +111,7 @@ class Game:
         else:
             self.playerValue = 2
             self.compValue = 1
-
+        compTime = 0
         while True:
             self.refresh()
             winner = self.checkWin()
@@ -131,7 +143,7 @@ class Game:
                         else:
                             print("Invalid input, square already occupied")
                 else:
-                    (max, location) = self.maxComputer()
+                    (max, location) = self.maxComputer(-100, 100)
                     self.placeMarker(location, self.compValue)
             else:
                 if turn == 0:
@@ -149,7 +161,7 @@ class Game:
                         else:
                             print("Invalid input, square already occupied")
                 else:
-                    (max, location) = self.maxComputer()
+                    (max, location) = self.maxComputer(-100, 100)
                     self.placeMarker(location, self.compValue)
                     
 
